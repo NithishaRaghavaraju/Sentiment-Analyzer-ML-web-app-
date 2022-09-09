@@ -29,58 +29,48 @@ def predict():
      features=[x for x in request.form.values()]
      xt = tokenizer.texts_to_sequences(features)
      xt = pad_sequences(xt, padding='post', maxlen=max_len)
-     print(xt)
      yt = model_final.predict(xt).argmax(axis=1)
-     print(yt)
      predicts = sentiment_classes[yt[0]]
      return render_template("sentiment.html", pred= predicts)
 
 @app.route('/csv',methods=['POST',"GET"])
 def getPage():
-    sentiment_classes = ['Negative', 'Neutral', 'Positive']
-    data = [request.form["myinput"]]
-    r = data[0].split("\n")
-    headers = r[0].split(',')
-    print(r[101])
-    objects = []
-    for i in range(1,100):
-          n = r[i].split(',')
-          n = n[1:]
-          object = {}
-          for j in range(len(n)-1):
-              object[headers[j]] = n[j]
-          objects.append(object)
-    print(objects)
-    c = request.form["column"]
-    print(c)
-    sentences = []
-    sentiments = []
-    Predicts = []
-    p = {}
-    if c in headers:
+     sentiment_classes = ['Negative', 'Neutral', 'Positive']
+     data = request.form["myinput"]
+     r = data.split("\n")
+     headers = r[0].split(',')
+     objects = []
+     for i in range(1,1000):
+           n = r[i].split(',')
+           object = {}
+           for j in range(len(n)-1):
+               object[headers[j]] = n[j]
+           objects.append(object)
 
-        for i in range(len(objects)):
-            content = objects[i][c]
-            sentences.append([content])
-            x = tokenizer.texts_to_sequences([content])
-            x = pad_sequences(x, padding='post', maxlen=max_len)
-            y = model_final.predict([x]).argmax(axis=1)
-            print(y)
-            predicts = sentiment_classes[y[0]]
-            if predicts not in p:
-                p[predicts] = 1
-            p[predicts]+= 1
-            Predicts.append(predicts)
-        values = list(p.values())
-        pos = '{:.2f}'.format((values[0] / len(Predicts)) * 100)
-        neg = '{:.2f}'.format((values[1] / len(Predicts)) * 100)
-        neu = '{:.2f}'.format((values[2] / len(Predicts)) * 100)
-        print(len(Predicts))
-        print(Predicts)
-        print(p)
-        final = f"Positive = {pos}%   Negative= {neg}%   Neutral = {neu}%"
-        return render_template("sentiment.html", preds=final)
-    return render_template("sentiment.html", preds="Invalid column name")
+     c = request.form["column"]
+     sentences = []
+     sentiments = []
+     Predicts = []
+     p = {}
+     if c in headers:
+
+         for i in range(len(objects)):
+             if c in objects[i]:
+                 content = objects[i][c]
+                 sentences.append(content)
+         x = tokenizer.texts_to_sequences(sentences)
+         x = pad_sequences(x, padding='post', maxlen=max_len)
+         y = model_final.predict([x]).argmax(axis=1)
+         p = []
+         for i in y:
+             l = sentiment_classes[i]
+             p.append(l)
+         pos = round(((p.count("Positive")/len(sentences))*100),3)
+         neg=  round(((p.count("Negative")/len(sentences))*100),3)
+         neu = round(((p.count("Neutral")/len(sentences))*100),3)
+         final = f"Positive = {pos}%   Negative= {neg}%   Neutral = {neu}%"
+         return render_template("sentiment.html", preds=final)
+     return render_template("sentiment.html", preds="Invalid column name")
 
 if __name__ == '__main__':
     app.jinja_env.auto_reload = True

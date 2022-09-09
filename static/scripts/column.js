@@ -6,7 +6,7 @@ x.addEventListener("change",(e)=>{
     fr.onloadend=e=>{
         let r = fr.result.split("\n");
         var headers = r[0].split(',');
-        document.myform.myinput.value = r;
+        document.myform.myinput.value = fr.result;
         console.log(headers)
         }
 
