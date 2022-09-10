@@ -6,4 +6,7 @@ Werkzeug==0.15.5
 numpy>=1.9.2
 pandas>=0.19
 tensorflow-cpu==2.5.0
+scipy>=0.15.1
+scikit-learn>=0.18
+matplotlib>=1.4.3
 protobuf==3.20
